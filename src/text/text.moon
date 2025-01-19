@@ -2,9 +2,11 @@ import colorify from require "text/text_color"
 local *
 buffer = {}
 backlog = {}
-lines = 3
-if love._console_name == "3DS" then lines = 7
+-- lines = 3
+-- if love._console_name == "3DS" then lines = 7
 pad = 10
+calculate_lines = ->
+	return math.floor(love.graphics.getHeight() / (love.text_font\getHeight() + pad))
 override_font = nil
 update_font = ->
 	if interpreter and not override_font
@@ -21,7 +23,7 @@ on "restore", ->
 	if fast_forward
 		fast_forward\remove!
 		fast_forward = nil
-done = () -> buffer = _.rest(buffer, lines + 1)
+done = () -> buffer = _.rest(buffer, calculate_lines() + 1)
 on "text", =>
 	no_input = false
 	if @text\sub(1, 1) == "@"
@@ -30,6 +32,7 @@ on "text", =>
 	if @text == '' or @text == '!' then return
 	add = word_wrap(@text, lg.getWidth! - 2*pad)
 	for line in *add do table.insert(backlog, line)
+	lines = calculate_lines()
 	if #buffer == lines and not no_input
 		buffer = add
 	else
@@ -39,7 +42,7 @@ on "sfx", => table.insert(backlog, @)
 fast_forward = nil
 on "input", =>
 	if @ == "a"
-		if #buffer > lines then done!
+		if #buffer > calculate_lines() then done!
 		else dispatch "next_ins"
 	else if @ == "y"
 		if fast_forward then
@@ -47,7 +50,7 @@ on "input", =>
 			fast_forward = nil
 		else
 			fast_forward = Timer.every(0.2, ->
-				if #buffer > lines then done!
+				if #buffer > calculate_lines() then done!
 				else dispatch "next_ins"
 			)
 	else if @ == "x"
@@ -93,13 +96,13 @@ on "input", =>
 on "draw_text", ->
 	if #buffer > 0
 		lg.setFont(love.text_font)
-		w, h = lg.getWidth! - 2*pad, pad + (love.text_font\getHeight! + pad) * lines
+		w, h = lg.getWidth! - 2*pad, pad + (love.text_font\getHeight! + pad) * calculate_lines()
 		x, y = pad, lg.getHeight! - h - pad
 		lg.setColor(.18,.204,.251, .8)
 		lg.rectangle("fill", x, y, w, h)
 		lg.setColor(1, 1, 1)
 		y_pos = y + pad
-		draw_buffer = _.first(buffer, lines)
+		draw_buffer = _.first(buffer, calculate_lines())
 		for line in *draw_buffer
 			lg.print(line, 2*pad, y_pos)
 			y_pos += love.text_font\getHeight! + pad
