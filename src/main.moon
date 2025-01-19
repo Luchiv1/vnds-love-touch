@@ -8,6 +8,7 @@ Timer = require 'lib/timer'
 profile = require 'lib/profile'
 profile.setclock(love.timer.getTime)
 lfs = love.filesystem
+lfs.mountCommonPath("userdocuments", "documents") 
 lg = love.graphics
 interpreter = nil
 -- require "lovelog"
@@ -63,12 +64,12 @@ love.load = ->
 	-- love.window.setMode(400, 240)
 	love.resize(lg.getWidth!, lg.getHeight!)
 	dispatch "load"
-	lfs.createDirectory("/novels")
-	novels = lfs.getDirectoryItems("/novels")
+	path = "/documents/"
+	novels = lfs.getDirectoryItems(path)
 	opts = {}
 	media = font\getHeight! * 3
 	for i,novel in ipairs novels
-		base_dir = "novels/"..novel.."/"
+		base_dir = path..novel.."/"
 		if lfs.getInfo(base_dir, "file") then continue
 		icons = {"icon-high.png", "icon-high.jpg", "icon.png", "icon.jpg"}
 		thumbnails = {"thumbnail-high.png", "thumbnail-high.jpg", "thumbnail.png", "thumbnail.jpg"}
@@ -99,7 +100,7 @@ love.load = ->
 		})
 	if next(opts) == nil
 		dispatch "text", {text: "No novels found in this directory: "}
-		dispatch "text", {text: lfs.getSaveDirectory!.."/novels"}
+		dispatch "text", {text: path}
 		dispatch "text", {text: "Add one and restart the program"}
 	else create_listbox(choices: opts, :media)
 love.draw = ->
