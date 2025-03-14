@@ -1,5 +1,5 @@
 require "util"
-pprint = require "lib/pprint"
+pprint = require "lib.pprint"
 local *
 load = (base_dir, fs, data = file: "main.scr") ->
 	s = {:base_dir, :fs, locals: {}, globals: {}}
@@ -10,18 +10,15 @@ mem = (s, key) -> s.locals if s.locals[key] ~= nil else s.globals
 mem_type = (s, type) -> s.locals if type == "setvar" else s.globals
 choose = (s, val) -> s.locals["selected"] = val
 files = nil
-find_script = (s, file) ->
-	if files == nil
-		files = love.filesystem.getDirectoryItems("#{s.base_dir}script/")
-	for script_file in *files
-		if script_file\lower! == file\lower!
-			return script_file
+find_script = require "lib.find_script"
 escape_pattern = (text) ->
 	return text\gsub("([^%w])", "%%%1")
 read_file = (s, script_file) ->
+	print(script_file)
 	file = find_script(s, script_file)
-	data = s.fs("#{s.base_dir}script/#{file}")
-	if data == nil then error("Cannot read #{script_file}! Please check the scripts folder/zip")
+	scriptpath = "#{s.base_dir}script/#{file}"
+	data = s.fs(scriptpath)
+	if data == nil then error("Cannot read #{scriptpath}! Please check the scripts folder/zip")
 	ins = {}
 	for line in string.gmatch(data, "[^\n]+")
 		if line != '' and line\sub(1,1) != "#"
