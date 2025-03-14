@@ -1,3 +1,5 @@
 vnds
 build
 bin
+# apple moment
+.DS_Store
