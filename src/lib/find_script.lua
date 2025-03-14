@@ -1,19 +1,3 @@
---[[
-(s, file) ->
-	if files == nil
-		files = love.filesystem.getDirectoryItems("#{s.base_dir}script/")
-	for script_file in *files
-		if script_file\lower! == file\lower!
-			return script_file
---]]
--- https://stackoverflow.com/a/15278426
-local function concat_tables(t1, t2)
-    for i = 1, #t2 do
-        t1[#t1 + 1] = t2[i]
-    end
-    return t1
-end
-
 FILECACHE = nil
 local script_folder_name = "script"
 local function populate_filecache(base_dir, location)
