@@ -7,10 +7,7 @@ on "save_slot", ->
 	write_slot = =>
 		save_table = {interpreter: script.save(interpreter)}
 		dispatch_often "save", save_table
-		with love.filesystem.newFile(@data.fn, "w")
-			\write(json.encode(save_table))
-			\flush!
-			\close!
+		print("write res:", love.filesystem.write(@data.fn, json.encode(save_table)))
 		choice = preview_slot(@data.i, @data.fn, save_table, lfs.getInfo(@data.fn))
 		@text = choice.text
 		@action = write_slot
@@ -39,14 +36,15 @@ preview_slot = (i, fn, save, info) ->
 		s = math.min(media/img\getWidth!, media/img\getHeight!)
 		preview = (x, y) -> lg.draw(img, x, y, 0, s, s)
 	return {
-		text: "Save #{i}\n#{os.date("%x %H:%M", info.modtime)}"
+		text: "Save #{i}\n#{os.date("%x %H:%M")}"
 		media: preview
 		data: {:save, :fn, :i}
 	}
 slot_ui = (base_dir, existing_slot, new_slot, closable = true) ->
 	choices = {}
 	for i = 1, 10
-		fn = base_dir.."/save#{i}.json"
+		lfs.createDirectory(base_dir)
+		fn = base_dir.."save#{i}.json"
 		info = lfs.getInfo(fn)
 		if info
 			save = json.decode(lfs.read(fn))

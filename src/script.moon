@@ -10,7 +10,7 @@ mem = (s, key) -> s.locals if s.locals[key] ~= nil else s.globals
 mem_type = (s, type) -> s.locals if type == "setvar" else s.globals
 choose = (s, val) -> s.locals["selected"] = val
 files = nil
-find_script = require "lib.find_script"
+find_script = require "find_script"
 escape_pattern = (text) ->
 	return text\gsub("([^%w])", "%%%1")
 read_file = (s, script_file) ->
