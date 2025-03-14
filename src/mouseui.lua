@@ -10,3 +10,10 @@ on("mouse_input", function(x, y, btn)
         end
     end
 end)
+on("wheel_input", function(x, y)
+    if (y > 0) then
+        dispatch("input", "up")
+    elseif (y < 0) then
+        dispatch("input", "down")
+    end
+end)

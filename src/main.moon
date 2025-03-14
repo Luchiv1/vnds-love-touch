@@ -139,3 +139,5 @@ love.keypressed = (key) ->
 love.gamepadpressed = (joy, button) -> dispatch_often "gamepad_input", button
 
 love.mousepressed = ( x, y, btn ) -> dispatch_often "mouse_input", x, y, btn
+
+love.wheelmoved = (x, y) -> dispatch_often "wheel_input", x, y
