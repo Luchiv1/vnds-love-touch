@@ -1,6 +1,7 @@
 export *
 import dispatch, dispatch_often, on, remove, register from require 'event'
-import create_listbox from require 'listbox'
+import create_listbox, onload from require "mouseui"
+
 love.graphics.setDefaultFilter("linear", "linear")
 script = require "script"
 pprint = require "lib/pprint"
@@ -21,7 +22,6 @@ require "save"
 require "input"
 require "menu"
 require "config"
-require "mouseui"
 os.setlocale("", "time") --Needed for the correct time
 lfs.setIdentity("VNDS-LOVE")
 sx, sy = 0,0
@@ -104,40 +104,20 @@ love.load = ->
 		dispatch "text", {text: path}
 		dispatch "text", {text: "Add one and restart the program"}
 	else create_listbox(choices: opts, :media)
-love.draw = ->
-	dispatch_often "draw_background"
-	dispatch_often "draw_foreground"
-	dispatch_often "draw_text"
-	dispatch_often "draw_choice"
-	dispatch_often "draw_ui"
-	dispatch_often "draw_debug"
 
-if love._console_name == "3DS"
-	love.draw = =>
-		if @ ~= "bottom"
-			dispatch_often "draw_text"
-			dispatch_often "draw_choice"
-		else
-			dispatch_often "draw_background"
-			dispatch_often "draw_foreground"
-			dispatch_often "draw_ui"
-			dispatch_often "draw_debug"
+
 paused = 0
 on "pause", -> paused += 1
 on "play", -> paused -= 1
 love.update = (dt) ->
 	dispatch_often "update", dt
-	if paused == 0 then Timer.update(dt)
+	-- HACK
+	Timer.update(dt)
 
 is_fullscreen = false
-love.keypressed = (key) ->
-	dispatch_often "keyboard_input", key
-	if key == "f11" then
-		love.window.setFullscreen(is_fullscreen, "desktop")
-		is_fullscreen = not is_fullscreen
 
-love.gamepadpressed = (joy, button) -> dispatch_often "gamepad_input", button
+-- love.gamepadpressed = (joy, button) -> dispatch_often "gamepad_input", button
 
-love.mousepressed = ( x, y, btn ) -> dispatch_often "mouse_input", x, y, btn
+-- love.mousepressed = ( x, y, btn ) -> dispatch_often "mouse_input", x, y, btn
 
-love.wheelmoved = (x, y) -> dispatch_often "wheel_input", x, y
+-- love.wheelmoved = (x, y) -> dispatch_often "wheel_input", x, y
