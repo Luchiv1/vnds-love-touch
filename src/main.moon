@@ -111,8 +111,7 @@ on "pause", -> paused += 1
 on "play", -> paused -= 1
 love.update = (dt) ->
 	dispatch_often "update", dt
-	-- HACK
-	Timer.update(dt)
+	if paused == 0 then Timer.update(dt)
 
 is_fullscreen = false
 

@@ -84,7 +84,7 @@ function create_listbox(self)
     end
     self.onclose = self.onclose or close
     self.media = self.media
-
+    dispatch("pause")
     local container = luis.newFlexContainer(32, 32, 1, 1, nil, "choice")
     for i, v in ipairs(self.choices) do
         local button1 = luis.newButton(v.text, 15, 3, function() end,
