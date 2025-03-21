@@ -5,6 +5,7 @@ local initLuis = require("luis.init")
 
 -- Direct this to your widgets folder.
 luis = initLuis("luis/widgets")
+-- luis.showGrid = true
 local function tablelength(T)
     local count = 0
     for _ in pairs(T) do count = count + 1 end
@@ -13,13 +14,16 @@ end
 -- register flux in luis, some widgets need it for animations
 luis.flux = require("luis.3rdparty.flux")
 local clickthrough_layer = "clickthrough"
+local grid_width = 16
+local grid_height = 9
 on("load", function()
     luis.newLayer(clickthrough_layer)
     luis.newLayer(choice_layer)
 
     luis.setCurrentLayer(clickthrough_layer)
+    love.window.setMode(1600, 900)
 
-    love.window.setMode(1280, 1024)
+    luis.setGridSize(love.graphics.getWidth() / grid_width)
 end)
 
 local time = 0
@@ -85,9 +89,9 @@ function create_listbox(self)
     self.onclose = self.onclose or close
     self.media = self.media
     dispatch("pause")
-    local container = luis.newFlexContainer(32, 32, 1, 1, nil, "choice")
+    local container = luis.newFlexContainer(grid_width, grid_height, 1, 1, nil, "choice")
     for i, v in ipairs(self.choices) do
-        local button1 = luis.newButton(v.text, 15, 3, function() end,
+        local button1 = luis.newButton(v.text, grid_width, 1, function() end,
             function()
                 local outcome = v.action(v, close)
                 luis.removeElement(choice_layer, container)
@@ -96,6 +100,8 @@ function create_listbox(self)
             end, 5, 2)
         container:addChild(button1)
     end
+    pprint(luis.gridSize)
+    container:resize(luis.gridSize, 9)
     luis.createElement(choice_layer, "FlexContainer", container)
     luis.setCurrentLayer("choice")
 end
