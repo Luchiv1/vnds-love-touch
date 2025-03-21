@@ -54,6 +54,8 @@ on "sound", =>
 			\play!
 		sound = {path: @path, :file, n: @n or 0}
 		dispatch "sfx", sound
+	else
+		print("SFX", @path, "not found!")
 on "music", =>
 	clear music
 	if exists @path
@@ -64,6 +66,8 @@ on "music", =>
 			\setVolume(music_volume)
 			\play!
 		music = {path: @path, :file}
+	else
+		print("Music file", @path, "not found!")
 on "update", ->
 	if next(sound) and not sound.file\isPlaying! and sound.n > 1
 		sound.file\play!
