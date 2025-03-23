@@ -1,61 +1,50 @@
-name: VNDS-LOVE
+name: Build VNDS-LOVE
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
-  push:
-    branches: [ master ]
-
-  workflow_dispatch:
-
+    push:
+        branches: ["main"]
+        paths-ignore:
+            - "*.md"
+            - ".github/dependabot.yml"
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    container:
-      image: ajusa/love-vnds
-      options: --cpus 2
-    steps:
-      - uses: actions/checkout@v2
-      - name: Lua Dependencies
-        run: |
-          wget https://github.com/TurtleP/LovePotion/releases/download/2.0.0-rc1/Nintendo.Switch-162bfdd.zip
-          wget https://github.com/TurtleP/LovePotion/releases/download/2.0.0-rc1/LovePotion-3DS-162bfdd_patch2.zip
-          unzip Nintendo.Switch-*
-          mkdir -p bin
-          mv LovePotion.elf bin/switch.elf
-          unzip LovePotion-3DS-*
-          mv LovePotion.elf bin/3ds.elf
-      - name: Tests
-        run: alfons test
-      - name: Build
-        run: |
-          mkdir -p /github/home/.lovepotion/
-          touch /github/home/.lovepotion/.first_run
-          alfons build
-          # sed -i "/^version=/s/=.*/=\"0.0.7\"/" lovebrew.toml
-          # cat lovebrew.toml
-          lovebrew -v
-          unzip -d build build/\*.zip
-      - uses: actions/upload-artifact@v2
-        with:
-          name: Windows 32
-          path: build/vnds-win32/
-      - uses: actions/upload-artifact@v2
-        with:
-          name: Windows 64
-          path: build/vnds-win64/
-      - uses: actions/upload-artifact@v2
-        with:
-          name: MacOS
-          path: build/vnds-macos.zip/
-      - uses: actions/upload-artifact@v2
-        with:
-          name: LOVE
-          path: build/vnds.love
-      - uses: actions/upload-artifact@v2
-        with:
-          name: 3DS
-          path: build/VNDS-LOVE.3dsx
-      - uses: actions/upload-artifact@v2
-        with:
-          name: Nintendo Switch
-          path: build/VNDS-LOVE.nro
-
+    build:
+        permissions:
+            contents: write
+        name: Build for iOS
+        runs-on: macos-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+            - uses: actions/checkout@v4
+              with:
+                  repository: love2d/love
+                  path: love2d
+                  ref: main
+            - uses: actions/checkout@v4
+              with:
+                  repository: love2d/love-apple-dependencies
+                  path: deps
+                  ref: main
+            - name: Copy dependencies
+              run: |
+                  cd deps
+                  cp -rv iOS/libraries ../love2d/platform/xcode/ios
+                  cp -rv shared ../love2d/platform/
+                  cd ..
+                  cp vnds.xcodeproj love2d/platform/xcode
+            - name: Build ipa
+              working-directory: ./love2d/platform/xcode
+              run: |
+                  ls
+                  xcodebuild -list -project vnds.xcodeproj
+                  xcodebuild -project vnds.xcodeproj clean archive CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGN_ENTITLEMENTS="" \
+                                           CODE_SIGNING_ALLOWED="NO" -sdk iphoneos -destination 'generic/platform=iOS' -archivePath ./arc -scheme love-ios
+                  mkdir Payload
+                  cp -rv arc.xcarchive/Products/Applications/VNDS.app Payload
+                  zip -r VNDS.ipa Payload
+            - name: Archive build artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: ios-build
+                  path: |
+                      VNDS.ipa
