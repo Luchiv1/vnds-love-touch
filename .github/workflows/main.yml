@@ -37,9 +37,9 @@ jobs:
                   cp -rv vnds.xcodeproj love2d/platform/xcode/
             - name: Install VNDS dependencies
               run: |
-                  /Users/runner/work/VNDS-LOVE/VNDS-LOVE/.luarocks/bin/luarocks install moonscript
-                  /Users/runner/work/VNDS-LOVE/VNDS-LOVE/.luarocks/bin/luarocks install busted
-                  /Users/runner/work/VNDS-LOVE/VNDS-LOVE/.luarocks/bin/luarocks install alfons
+                  luarocks install moonscript
+                  luarocks install busted
+                  luarocks install alfons
             - name: Build VNDS
               run: |
                   alfons build
