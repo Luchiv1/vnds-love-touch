@@ -42,7 +42,7 @@ preview_slot = (i, fn, save, info) ->
 	}
 slot_ui = (base_dir, existing_slot, new_slot, closable = true) ->
 	choices = {}
-	for i = 1, 10
+	for i = 1, 30
 		lfs.createDirectory(base_dir)
 		fn = base_dir.."save#{i}.json"
 		info = lfs.getInfo(fn)

@@ -64,7 +64,6 @@ next_msg = (ins) ->
 			next_msg!
 on "next_ins", next_msg
 love.load = ->
-	-- love.window.setMode(400, 240)
 	love.resize(lg.getWidth!, lg.getHeight!)
 	dispatch "load"
 	root_path = "/documents/"
@@ -113,12 +112,6 @@ on "pause", -> paused += 1
 on "play", -> paused -= 1
 love.update = (dt) ->
 	dispatch_often "update", dt
-	if paused == 0 then Timer.update(dt)
+	if paused <= 0 then Timer.update(dt)
 
 is_fullscreen = false
-
--- love.gamepadpressed = (joy, button) -> dispatch_often "gamepad_input", button
-
--- love.mousepressed = ( x, y, btn ) -> dispatch_often "mouse_input", x, y, btn
-
--- love.wheelmoved = (x, y) -> dispatch_often "wheel_input", x, y

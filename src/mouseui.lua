@@ -1,82 +1,80 @@
-local choice_layer = "choice"
-
-
-local initLuis = require("luis.init")
-
--- Direct this to your widgets folder.
-luis = initLuis("luis/widgets")
--- luis.showGrid = true
-local function tablelength(T)
-    local count = 0
-    for _ in pairs(T) do count = count + 1 end
-    return count
-end
--- register flux in luis, some widgets need it for animations
-luis.flux = require("luis.3rdparty.flux")
-local clickthrough_layer = "clickthrough"
-local grid_width = 16
-local grid_height = 9
 on("load", function()
-    luis.newLayer(clickthrough_layer)
-    luis.newLayer(choice_layer)
-
-    luis.setCurrentLayer(clickthrough_layer)
-    love.window.setMode(1600, 900)
-
-    luis.setGridSize(love.graphics.getWidth() / grid_width)
+    love.window.setMode(1280, 720)
 end)
-
-local time = 0
-on("update", function(dt)
-    time = time + dt
-    if time >= 1 / 60 then
-        luis.flux.update(time)
-        time = 0
-    end
-
-    luis.update(dt)
-end)
+MENU_ACT = false
 
 function love.draw()
     dispatch_often("draw_background")
     dispatch_often("draw_foreground")
     dispatch_often("draw_text")
-    dispatch_often("draw_choice")
     dispatch_often("draw_ui")
     dispatch_often("draw_debug")
-    luis.draw()
+    dispatch_often("draw_choice")
 end
 
+SCROLL_OFFSET = 0
+OLD_SCROLL_OFFSET = 0
+SCROLL_ACTIVE = false
 function love.mousepressed(x, y, button, istouch)
-    luis.mousepressed(x, y, button, istouch)
+    SCROLL_ACTIVE = true
+end
+
+function love.mousemoved(x, y, dx, dy)
+    if SCROLL_ACTIVE then
+        SCROLL_OFFSET = SCROLL_OFFSET + dy
+    end
 end
 
 function love.mousereleased(x, y, button, istouch)
-    luis.mousereleased(x, y, button, istouch)
-    if tablelength(luis.elements[luis.currentLayer]) == 0 then
-        if button == 1 then
-            dispatch("input", "a")
-        elseif button == 2 then
+    SCROLL_ACTIVE = false
+    if OLD_SCROLL_OFFSET == SCROLL_OFFSET then
+        -- No movement happened. We clicked on item and thats all.
+        dispatch("click", x, y, button)
+    end
+    OLD_SCROLL_OFFSET = SCROLL_OFFSET
+end
+
+local touches = {}
+
+function love.touchpressed(id)
+    touches[#touches + 1] = id
+
+    if #touches == 2 then
+        if MENU_ACT then
+            dispatch("input", "b")
+        else
             dispatch("input", "start")
         end
     end
 end
 
-function love.keypressed(key)
-    if key == "escape" then
-        if luis.currentLayer == "main" then
-            love.event.quit()
+function love.touchreleased(id)
+    for i, t in ipairs(touches) do
+        if t == id then
+            table.remove(touches, i) -- note: Use table.remove so it shifts the elements.
         end
-    elseif key == "tab" then -- Debug View
-        luis.showGrid = not luis.showGrid
-        luis.showLayerNames = not luis.showLayerNames
-        luis.showElementOutlines = not luis.showElementOutlines
-    else
-        luis.keypressed(key)
     end
 end
 
-function create_listbox(self)
+on("click", function(x, y, button, istouch)
+    if not istouch then
+        if button == 1 then
+            dispatch("input", "a")
+        elseif button == 2 then
+            dispatch("input", "start")
+        end
+    else
+    end
+end)
+BUTTON_MARGIN = 5
+BUTTON_PADDING = 15
+BUTTON_WIDTH = love.graphics.getWidth() - BUTTON_MARGIN * 2
+local function create_listbox(self)
+    MENU_ACT = true
+    local winwidth = love.graphics.getWidth()
+    local font = love.graphics.getFont()
+    local text = love.graphics.newText(font)
+    local draw_evt, input_evt
     self.selected = self.selected or 1
     if self.choices[self.selected].onchange then
         self.choices[self.selected].onchange(self.choices[self.selected])
@@ -84,26 +82,84 @@ function create_listbox(self)
     self.closable = self.closable or false
     self.allow_menu = self.allow_menu or false
     local function close()
+        draw_evt:remove()
+        input_evt:remove()
         dispatch("play")
+        MENU_ACT = false
     end
     self.onclose = self.onclose or close
     self.media = self.media
     dispatch("pause")
-    local container = luis.newFlexContainer(grid_width, grid_height, 1, 1, nil, "choice")
-    for i, v in ipairs(self.choices) do
-        local button1 = luis.newButton(v.text, grid_width, 1, function() end,
-            function()
-                local outcome = v.action(v, close)
-                luis.removeElement(choice_layer, container)
-                if self.closable and outcome then close() end
-                if not self.closable then close() end
-            end, 5, 2)
-        container:addChild(button1)
-    end
-    pprint(luis.gridSize)
-    container:resize(luis.gridSize, 9)
-    luis.createElement(choice_layer, "FlexContainer", container)
-    luis.setCurrentLayer("choice")
+    local buttons = {}
+    SCROLL_OFFSET = 0
+    draw_evt = on("draw_choice", function()
+        text:clear()
+        buttons = {}
+        local last_y = SCROLL_OFFSET
+        for _, v in ipairs(self.choices) do
+            local width, wrapped_text_seq = font:getWrap(v.text, winwidth - BUTTON_PADDING * 2)
+            local wrapped_text = ""
+            if (#wrapped_text_seq == 1) then
+                wrapped_text = wrapped_text_seq[1]
+            else
+                for _, v in ipairs(wrapped_text_seq) do
+                    wrapped_text = wrapped_text .. v .. '\n'
+                end
+            end
+            local button_width = winwidth - BUTTON_MARGIN * 2
+            local button_height = font:getHeight() * #wrapped_text_seq + BUTTON_MARGIN * 2
+            local y = last_y + BUTTON_MARGIN
+            table.insert(buttons, ({
+                y_start = y,
+                y_end = y + button_height,
+                choice = v
+            }))
+            text:add(wrapped_text, winwidth / 2 - width / 2, y)
+            love.graphics.setColor(1, 1, 1, .5)
+            love.graphics.rectangle("fill", BUTTON_MARGIN, y,
+                button_width, button_height, 10, 10)
+            love.graphics.setColor(.5, .5, .5, .5)
+
+            love.graphics.rectangle("line", BUTTON_MARGIN, y,
+                button_width, button_height, 10, 10)
+            love.graphics.setColor(0, 0, 0, 1)
+            love.graphics.draw(text)
+            last_y = y + button_height
+        end
+    end)
+    input_evt = on("click", function(x, y, button, istouch)
+        if istouch and love.touch.getTouches() > 1 then return true end
+        if button == 1 then
+            for _, v in ipairs(buttons) do
+                if (y >= v.y_start and y <= v.y_end) then
+                    local outcome = v.choice.action(v.choice, close)
+                    close()
+                    self:onclose()
+                    break
+                end
+            end
+        else
+            if self.closable then close() end
+            self:onclose()
+        end
+        return false
+    end)
+
+    -- local container = luis.newFlexContainer(grid_width, grid_height, 1, 1, nil, "choice")
+    -- for i, v in ipairs(self.choices) do
+    --     local button1 = luis.newButton(v.text, grid_width, 1, function() end,
+    --         function()
+    --             local outcome = v.action(v, close)
+    --             luis.removeElement(choice_layer, container)
+    --             if self.closable and outcome then close() end
+    --             if not self.closable then close() end
+    --         end, 5, 2)
+    --     container:addChild(button1)
+    -- end
+    -- pprint(luis.gridSize)
+    -- container:resize(luis.gridSize, 9)
+    -- luis.createElement(choice_layer, "FlexContainer", container)
+    -- luis.setCurrentLayer("choice")
 end
 
 return { create_listbox = create_listbox, luis = luis }
