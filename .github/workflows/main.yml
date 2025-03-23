@@ -54,9 +54,9 @@ jobs:
                   mkdir Payload
                   cp -rv arc.xcarchive/Products/Applications/VNDS.app Payload
                   zip -r VNDS.ipa Payload
+            
             - name: Archive build artifacts
               uses: actions/upload-artifact@v4
               with:
-                  name: ios-build
                   path: |
-                      VNDS.ipa
+                      love2d/platform/xcode/VNDS.ipa
