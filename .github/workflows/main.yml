@@ -14,7 +14,7 @@ jobs:
         runs-on: macos-latest
         steps:
             - name: Install lua
-              run: brew install luarocks zip
+              run: brew install luarocks zip libzip
             - uses: actions/checkout@v4
               with:
                   fetch-depth: 0
