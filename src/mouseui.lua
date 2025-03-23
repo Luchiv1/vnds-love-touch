@@ -5,16 +5,46 @@ on("load", function()
         love.window.setMode(0, 0, { fullscreen = true })
     end
 end)
-MENU_ACT = false
 
 function love.draw()
     dispatch_often("draw_background")
     dispatch_often("draw_foreground")
     dispatch_often("draw_text")
+    dispatch_often("draw_mainmenu_button")
     dispatch_often("draw_ui")
     dispatch_often("draw_debug")
     dispatch_often("draw_choice")
 end
+
+local menu_fnt = love.graphics.getFont()
+menu_fnt:setLineHeight(0.5)
+local menu_txt = love.graphics.newText(menu_fnt)
+
+MENU_BUTTON_START_X = 0
+MENU_BUTTON_START_Y = 0
+MENU_BUTTON_END_X = 0
+MENU_BUTTON_END_Y = 0
+MENU_BUTTON_WIDTH = 100
+MENU_BUTTON_HEIGHT = 20
+MENU_TEXT = "MENU"
+on("draw_mainmenu_button", function()
+    love.graphics.setColor(0, 0, 0)
+    local w = love.graphics.getWidth() - 5
+    local h = love.graphics.getHeight() - 5
+    MENU_BUTTON_START_X = w - MENU_BUTTON_WIDTH
+    MENU_BUTTON_START_Y = h - MENU_BUTTON_HEIGHT
+    MENU_BUTTON_END_X = MENU_BUTTON_START_X + 100
+    MENU_BUTTON_END_Y = h - 30
+
+    love.graphics.rectangle("fill", MENU_BUTTON_START_X, MENU_BUTTON_START_Y, MENU_BUTTON_WIDTH, MENU_BUTTON_HEIGHT, 5, 5)
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.rectangle("line", MENU_BUTTON_START_X, h - MENU_BUTTON_HEIGHT, MENU_BUTTON_WIDTH, MENU_BUTTON_HEIGHT, 5,
+        5)
+    menu_txt:clear()
+    local font_width = menu_fnt:getWidth(MENU_TEXT)
+    menu_txt:add(MENU_TEXT, MENU_BUTTON_START_X + MENU_BUTTON_WIDTH / 2 - font_width / 2, MENU_BUTTON_START_Y)
+    love.graphics.draw(menu_txt)
+end)
 
 SCROLL_OFFSET = 0
 OLD_SCROLL_OFFSET = 0
@@ -43,33 +73,17 @@ end
 
 function love.mousereleased(x, y, button, istouch)
     SCROLL_ACTIVE = false
+    print(MENU_BUTTON_START_X, MENU_BUTTON_START_Y, MENU_BUTTON_END_X, MENU_BUTTON_END_Y, x, y, x >= MENU_BUTTON_START_X,
+        y > MENU_BUTTON_START_Y)
+    if x >= MENU_BUTTON_START_X and y > MENU_BUTTON_START_Y then
+        dispatch("input", "start")
+        return
+    end
     if not SCROLLED then
         -- No movement happened. We clicked on item and thats all.
         dispatch("click", x, y, button)
     end
     SCROLLED = false
-end
-
-local touches = {}
-
-function love.touchpressed(id)
-    touches[#touches + 1] = id
-
-    if #touches == 2 then
-        if MENU_ACT then
-            dispatch("input", "b")
-        else
-            dispatch("input", "start")
-        end
-    end
-end
-
-function love.touchreleased(id)
-    for i, t in ipairs(touches) do
-        if t == id then
-            table.remove(touches, i) -- note: Use table.remove so it shifts the elements.
-        end
-    end
 end
 
 on("click", function(x, y, button, istouch)
@@ -86,7 +100,6 @@ BUTTON_MARGIN = 5
 BUTTON_PADDING = 15
 BUTTON_WIDTH = love.graphics.getWidth() - BUTTON_MARGIN * 2
 local function create_listbox(self)
-    MENU_ACT = true
     local winwidth = love.graphics.getWidth()
     local font = love.graphics.getFont()
     local text = love.graphics.newText(font)
@@ -101,7 +114,6 @@ local function create_listbox(self)
         draw_evt:remove()
         input_evt:remove()
         dispatch("play")
-        MENU_ACT = false
     end
     self.onclose = self.onclose or close
     self.media = self.media

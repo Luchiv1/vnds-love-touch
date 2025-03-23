@@ -26,6 +26,7 @@ on "restore", ->
 done = () -> buffer = _.rest(buffer, calculate_lines() + 1)
 on "text", =>
 	no_input = false
+	if text == nil then return
 	if @text\sub(1, 1) == "@"
 		@text = @text\sub(2, -1)
 		no_input = true
