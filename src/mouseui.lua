@@ -92,10 +92,28 @@ local function create_listbox(self)
     dispatch("pause")
     local buttons = {}
     SCROLL_OFFSET = 0
+    local height_offset = 0
+    for _, v in ipairs(self.choices) do
+        local width, wrapped_text_seq = font:getWrap(v.text, winwidth - BUTTON_PADDING * 2)
+        local wrapped_text = ""
+        if (#wrapped_text_seq == 1) then
+            wrapped_text = wrapped_text_seq[1]
+        else
+            for _, v in ipairs(wrapped_text_seq) do
+                wrapped_text = wrapped_text .. v .. '\n'
+            end
+        end
+        local button_height = font:getHeight() * #wrapped_text_seq + BUTTON_MARGIN * 2
+        height_offset = height_offset + button_height
+    end
+    if height_offset < love.graphics.getHeight() then
+        SCROLL_OFFSET = love.graphics.getHeight() / 2 - height_offset / 2
+    end
     draw_evt = on("draw_choice", function()
         text:clear()
         buttons = {}
         local last_y = SCROLL_OFFSET
+
         for _, v in ipairs(self.choices) do
             local width, wrapped_text_seq = font:getWrap(v.text, winwidth - BUTTON_PADDING * 2)
             local wrapped_text = ""
@@ -114,7 +132,7 @@ local function create_listbox(self)
                 y_end = y + button_height,
                 choice = v
             }))
-            text:add(wrapped_text, winwidth / 2 - width / 2, y)
+            text:add(wrapped_text, math.floor(winwidth / 2 - width / 2), math.floor(y))
             love.graphics.setColor(1, 1, 1, .5)
             love.graphics.rectangle("fill", BUTTON_MARGIN, y,
                 button_width, button_height, 10, 10)
