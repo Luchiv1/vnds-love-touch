@@ -13,6 +13,8 @@ jobs:
         name: Build for iOS
         runs-on: macos-latest
         steps:
+            - uses: leafo/gh-actions-lua@v11
+            - uses: leafo/gh-actions-luarocks@v5
             - uses: actions/checkout@v4
               with:
                   fetch-depth: 0
@@ -26,13 +28,21 @@ jobs:
                   repository: love2d/love-apple-dependencies
                   path: deps
                   ref: main
-            - name: Copy dependencies
+            - name: Copy LOVE dependencies
               run: |
                   cd deps
-                  cp -rv iOS/libraries ../love2d/platform/xcode/ios
+                  cp -rv iOS/libraries ../love2d/platform/xcode/ios 
                   cp -rv shared ../love2d/platform/
                   cd ..
-                  cp vnds.xcodeproj love2d/platform/xcode
+                  cp -rv vnds.xcodeproj love2d/platform/xcode
+            - name: Install VNDS dependencies
+              run: |
+                  luarocks install moonscript
+                  luarocks install busted
+                  luarocks install alfons
+            - name: Build VNDS
+              run: |
+                  alfons build
             - name: Build ipa
               working-directory: ./love2d/platform/xcode
               run: |
