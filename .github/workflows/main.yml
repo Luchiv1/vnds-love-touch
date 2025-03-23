@@ -40,6 +40,7 @@ jobs:
                   luarocks install moonscript
                   luarocks install busted
                   luarocks install alfons
+                  luarocks install love-release
             - name: Build VNDS
               run: |
                   alfons build
