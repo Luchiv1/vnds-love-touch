@@ -19,23 +19,35 @@ end
 SCROLL_OFFSET = 0
 OLD_SCROLL_OFFSET = 0
 SCROLL_ACTIVE = false
+SCROLL_LOCKED = false
+SCROLLED = false
+SCROLL_MIN = 0
+SCROLL_MAX = 0
 function love.mousepressed(x, y, button, istouch)
     SCROLL_ACTIVE = true
 end
 
 function love.mousemoved(x, y, dx, dy)
-    if SCROLL_ACTIVE then
-        SCROLL_OFFSET = SCROLL_OFFSET + dy
+    if SCROLL_ACTIVE and not SCROLL_LOCKED then
+        local tmp = SCROLL_OFFSET + dy
+        if tmp < SCROLL_MIN then
+            SCROLL_OFFSET = SCROLL_MIN
+        elseif tmp > SCROLL_MAX then
+            SCROLL_OFFSET = SCROLL_MAX
+        else
+            SCROLL_OFFSET = tmp
+        end
+        SCROLLED = true
     end
 end
 
 function love.mousereleased(x, y, button, istouch)
     SCROLL_ACTIVE = false
-    if OLD_SCROLL_OFFSET == SCROLL_OFFSET then
+    if not SCROLLED then
         -- No movement happened. We clicked on item and thats all.
         dispatch("click", x, y, button)
     end
-    OLD_SCROLL_OFFSET = SCROLL_OFFSET
+    SCROLLED = false
 end
 
 local touches = {}
@@ -96,6 +108,9 @@ local function create_listbox(self)
     dispatch("pause")
     local buttons = {}
     SCROLL_OFFSET = 0
+    SCROLL_MIN = 0
+    SCROLL_MAX = 0
+    SCROLL_LOCKED = false
     local height_offset = 0
     for _, v in ipairs(self.choices) do
         local width, wrapped_text_seq = font:getWrap(v.text, winwidth - BUTTON_PADDING * 2)
@@ -110,7 +125,9 @@ local function create_listbox(self)
         local button_height = font:getHeight() * #wrapped_text_seq + BUTTON_MARGIN * 2
         height_offset = height_offset + button_height
     end
+    SCROLL_MIN = -(height_offset - love.graphics.getHeight()) - 200
     if height_offset < love.graphics.getHeight() then
+        SCROLL_LOCKED = true
         SCROLL_OFFSET = love.graphics.getHeight() / 2 - height_offset / 2
     end
     draw_evt = on("draw_choice", function()
