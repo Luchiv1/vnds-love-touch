@@ -32,7 +32,7 @@ jobs:
               run: |
                   cd deps
                   cp -rv iOS/libraries ../love2d/platform/xcode/ios 
-                  cp -rv shared ../love2d/platform/
+                  cp -rv shared ../love2d/platform/xcode
                   cd ..
                   cp -rv vnds.xcodeproj love2d/platform/xcode/
             - name: Install VNDS dependencies
