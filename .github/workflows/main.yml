@@ -13,8 +13,8 @@ jobs:
         name: Build for iOS
         runs-on: macos-latest
         steps:
-            - uses: leafo/gh-actions-lua@v11
-            - uses: leafo/gh-actions-luarocks@v5
+            - name: Install lua
+              run: brew install luarocks
             - uses: actions/checkout@v4
               with:
                   fetch-depth: 0
