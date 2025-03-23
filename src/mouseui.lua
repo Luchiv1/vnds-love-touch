@@ -1,5 +1,9 @@
 on("load", function()
     love.window.setMode(1280, 720)
+    pprint(love.window.getMode())
+    if love.system.getOS() == 'iOS' or love.system.getOS() == 'Android' then
+        love.window.setMode(0, 0, { fullscreen = true })
+    end
 end)
 MENU_ACT = false
 
