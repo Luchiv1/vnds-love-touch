@@ -5,6 +5,7 @@ on:
         paths-ignore:
             - "*.md"
             - ".github/dependabot.yml"
+    workflow_dispatch:
 jobs:
     build:
         permissions:
