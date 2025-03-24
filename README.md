@@ -19,28 +19,15 @@ Mostly functional. There are no known VNDS related bugs. Note that some features
 
 ## Supported Platforms
 
-Windows, Mac, Linux, and the Nintendo Switch are all fully supported. Note that you need to have a Switch capable of running homebrew. For more information, see the guide below.
-
-### Nintendo 3DS
-
-This is only partially supported and a work in progress. I do provide builds (3dsx files) for the Nintendo 3DS, however the image format that the 3DS needs is custom (.t3x) so PNG/JPG files do not work on it without being converted. At some point I do intend on writing a cross platform conversion tool, however that won't be for a while most likely. Text and audio still work fine without any conversion.
-
-Performance on the 3DS is also lacking at this moment. You can see this being tracked in [this issue.](https://github.com/ajusa/VNDS-LOVE/issues/16)
-
-### Android
-
-Android is also only partially supported. There aren't any touchscreen controls at this moment. You can still play through novels by hooking up an external gamepad, such as a Switch Joycon over bluetooth or a Wii Remote. Audio, images, and text all work fine.
+iOS, iPadOS
 
 # Installation Instructions
 
-If you are a **user** who wants to install this, go to the guide [here](https://docs.google.com/document/d/e/2PACX-1vRoZeD_wTko3X7FnARS2HtUerTUABwqnfnEJQpuEG9GQ0UvbnWFdbhvg7eEYsFNnMxTUJ7F9dupMCjQ/pub).
-If you encounter any issues, feel free to pop in our Discord [here.](https://discord.gg/q8wjpt2)
-
-If you don't want to use Discord for some reason, feel free to open a Github issue.
+Install .ipa file from [actions](https://nightly.link/OctoNezd/VNDS-LOVE-TOUCH/workflows/main/main/artifact) using [AltStore](https://faq.altstore.io/altstore-classic/how-to-install-altstore-windows) or jailbreak/trollstore.
 
 ## Having an Issue?
 
-Go to the [issues](https://github.com/ajusa/VNDS-LOVE/issues/) and search for an issue similar to yours.
+Go to the [issues](https://github.com/octonezd/VNDS-LOVE-TOUCH/issues/) and search for an issue similar to yours.
 If there are no similar issues, go ahead and make a new one! Fill out as much information as you can.
 
 # Development Instructions
@@ -48,10 +35,7 @@ If there are no similar issues, go ahead and make a new one! Fill out as much in
 ONLY FOLLOW THESE INSTRUCTIONS IF YOU WANT TO COMPILE VNDS-LOVE!
 IF YOU JUST WANT TO PLAY VISUAL NOVELS, GO TO THE GUIDE!
 
-**Note:** Right now, building an NRO file is only supported on systems that you can install devKitPro on.
-You can still easily test, but you won't be able to generate a final package.
-
-You should be able to develop on Windows, Mac, and Linux. If you encounter any errors when trying to do that, [create an issue.](https://github.com/ajusa/VNDS-LOVE/issues/new)
+You should be able to develop on Windows, Mac, and Linux. However, to compile the game for iOS you would need a Mac. If you encounter any errors when trying to do that, [create an issue.](https://github.com/octonezd/VNDS-LOVE-TOUCH/issues/new)
 
 ## Quickstart
 
@@ -68,9 +52,9 @@ luarocks install busted
 luarocks install alfons
 ```
 
-3. Clone the repository (`git clone https://github.com/ajusa/VNDS-LOVE`)
-4. `cd` to the cloned directory (`cd VNDS-LOVE`)
-5. Install [Love2D](https://love2d.org/) and make sure it is also on your path.
+3. Clone the repository (`git clone https://github.com/octonezd/VNDS-LOVE-TOUCH`)
+4. `cd` to the cloned directory (`cd VNDS-LOVE-TOUCH`)
+5. Install [development version of Love2D](https://github.com/love2d/love/actions) and make sure it is also on your path.
 
 Run `alfons compile` to compile the moonscript source to lua.
 
@@ -82,7 +66,7 @@ Run `alfons test` to run the busted unit tests, which are located in `spec`
 
 Building binaries requires additional steps.
 If you are able to run VNDS-LOVE with changes using Love2D, you do not need to build the program.
-You can submit a [Pull Request](https://github.com/ajusa/VNDS-LOVE/pulls) without building the program.
+You can submit a [Pull Request](https://github.com/octonezd/VNDS-LOVE-TOUCH/pulls) without building the program.
 Building is just for distribution.
 
 With that out of the way:
@@ -93,14 +77,6 @@ With that out of the way:
 2. Install `libzip-dev` on your OS if the above command fails.
 3. Run `alfons build`, and the build files should appear in a `build` folder, including a `.love` file.
 
-### Building for Switch and 3DS
+### Building for iOS
 
-Github Actions is set up to do these builds. If you want to do this locally as well,
-follow the "Dependencies" instructions on the LovePotion wiki [here](https://turtlep.github.io/LovePotion/wiki/#/building).
-
-1. Install [lovebrew](https://github.com/TurtleP/lovebrew) and make sure you can run `lovebrew -h`
-2. Create a directory called `bin` in the root of the project
-3. Download the latest [LovePotion release](https://github.com/TurtleP/LovePotion/releases), and save `LovePotion.elf` in `bin/switch.elf`.
-4. Run `lovebrew` in the project directory.
-
-This should output a `VNDS-LOVE.nro` file in the project root directory to test with.
+See .github/workflows/main.yml
