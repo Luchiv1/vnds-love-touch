@@ -76,8 +76,6 @@ end
 
 function love.mousereleased(x, y, button, istouch)
     SCROLL_ACTIVE = false
-    print(MENU_BUTTON_START_X, MENU_BUTTON_START_Y, MENU_BUTTON_END_X, MENU_BUTTON_END_Y, x, y, x >= MENU_BUTTON_START_X,
-        y > MENU_BUTTON_START_Y)
     if x >= MENU_BUTTON_START_X and y > MENU_BUTTON_START_Y then
         dispatch("input", "start")
         return
@@ -188,7 +186,13 @@ local function create_listbox(self)
             for _, v in ipairs(buttons) do
                 if (y >= v.y_start and y <= v.y_end) then
                     local outcome = v.choice.action(v.choice, close)
-                    close()
+                    if v.choice.right ~= nil and x > love.graphics.getWidth() / 2 then
+                        v.choice.right(v.choice, close)
+                    end
+                    if v.choice.left ~= nil and x < love.graphics.getWidth() / 2 then
+                        v.choice.left(v.choice, close)
+                    end
+                    -- close()
                     self:onclose()
                     break
                 end
@@ -199,22 +203,6 @@ local function create_listbox(self)
         end
         return false
     end)
-
-    -- local container = luis.newFlexContainer(grid_width, grid_height, 1, 1, nil, "choice")
-    -- for i, v in ipairs(self.choices) do
-    --     local button1 = luis.newButton(v.text, grid_width, 1, function() end,
-    --         function()
-    --             local outcome = v.action(v, close)
-    --             luis.removeElement(choice_layer, container)
-    --             if self.closable and outcome then close() end
-    --             if not self.closable then close() end
-    --         end, 5, 2)
-    --     container:addChild(button1)
-    -- end
-    -- pprint(luis.gridSize)
-    -- container:resize(luis.gridSize, 9)
-    -- luis.createElement(choice_layer, "FlexContainer", container)
-    -- luis.setCurrentLayer("choice")
 end
 
 return { create_listbox = create_listbox, luis = luis }
