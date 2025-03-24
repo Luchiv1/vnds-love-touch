@@ -35,6 +35,7 @@ jobs:
                   cp -rv shared ../love2d/platform/xcode
                   cd ..
                   cp -rv vnds.xcodeproj love2d/platform/xcode/
+                  cp love-ios.plist love2d/platform/xcode/ios
             - name: Install VNDS dependencies
               run: |
                   luarocks install moonscript

@@ -9,9 +9,9 @@ Timer = require 'lib/timer'
 profile = require 'lib/profile'
 profile.setclock(love.timer.getTime)
 lfs = love.filesystem
-lfs.mountCommonPath("userdocuments", "documents", "readwrite")
+lfs.mountCommonPath("userdocuments", "/documents", "readwrite")
 -- apple moment
-lfs.write("/documents/.dummy", "dummy file to make ios show up the app folder")
+print(lfs.write("/documents/.dummy.txt", "dummy file to make ios show up the app folder"))
 lg = love.graphics
 interpreter = nil
 -- require "lovelog"
@@ -102,7 +102,7 @@ love.load = ->
 		})
 	if next(opts) == nil
 		dispatch "text", {text: "No novels found in this directory: "}
-		dispatch "text", {text: path}
+		dispatch "text", {text: root_path}
 		dispatch "text", {text: "Add one and restart the program"}
 	else create_listbox(choices: opts, :media)
 

@@ -25,6 +25,7 @@ on "restore", ->
 		fast_forward = nil
 done = () -> buffer = _.rest(buffer, calculate_lines() + 1)
 on "text", =>
+	if @text == nil then return
 	if @text\sub(1, 1) == "@"
 		@text = @text\sub(2, -1)
 		no_input = true
