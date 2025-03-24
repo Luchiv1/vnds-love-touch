@@ -5,8 +5,20 @@ backlog = {}
 -- lines = 3
 -- if love._console_name == "3DS" then lines = 7
 pad = 10
+getHeight = -> 
+	SAFE_X, SAFE_Y, SAFE_WIDTH, SAFE_HEIGHT = love.window.getSafeArea()
+	return SAFE_HEIGHT
+getWidth = ->
+    SAFE_X, SAFE_Y, SAFE_WIDTH, SAFE_HEIGHT = love.window.getSafeArea()
+    return SAFE_WIDTH
+getSafeX = ->
+    SAFE_X, SAFE_Y, SAFE_WIDTH, SAFE_HEIGHT = love.window.getSafeArea()
+	return SAFE_X
+getSafeY = ->
+    SAFE_X, SAFE_Y, SAFE_WIDTH, SAFE_HEIGHT = love.window.getSafeArea()
+	return SAFE_Y
 calculate_lines = ->
-	return math.floor(love.graphics.getHeight() / (love.text_font\getHeight() + pad))
+	return math.floor(getHeight() / (love.text_font\getHeight() + pad))
 override_font = nil
 update_font = ->
 	if interpreter and not override_font
@@ -30,7 +42,7 @@ on "text", =>
 		@text = @text\sub(2, -1)
 		no_input = true
 	if @text == '' or @text == '!' then return
-	add = word_wrap(@text, lg.getWidth! - 2*pad)
+	add = word_wrap(@text, getWidth! - 2*pad)
 	for line in *add do table.insert(backlog, line)
 	lines = calculate_lines()
 	if #buffer == lines and not no_input
@@ -97,7 +109,7 @@ on "draw_text", ->
 	if #buffer > 0
 		lg.setFont(love.text_font)
 		w, h = lg.getWidth! - 2*pad, pad + (love.text_font\getHeight! + pad) * calculate_lines()
-		x, y = pad, lg.getHeight! - h - pad
+		x, y = pad, getHeight! - h - pad
 		lg.setColor(.18,.204,.251, .8)
 		lg.rectangle("fill", x, y, w, h)
 		lg.setColor(1, 1, 1)

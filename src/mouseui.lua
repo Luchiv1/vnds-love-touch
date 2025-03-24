@@ -1,9 +1,12 @@
+SAFE_X, SAFE_Y, SAFE_WIDTH, SAFE_HEIGHT = love.window.getSafeArea()
+
 on("load", function()
     love.window.setMode(1280, 720)
     pprint(love.window.getMode())
     if love.system.getOS() == 'iOS' or love.system.getOS() == 'Android' then
         love.window.setMode(0, 0, { fullscreen = true })
     end
+    SAFE_X, SAFE_Y, SAFE_WIDTH, SAFE_HEIGHT = love.window.getSafeArea()
 end)
 
 function love.draw()
@@ -98,9 +101,10 @@ on("click", function(x, y, button, istouch)
 end)
 BUTTON_MARGIN = 5
 BUTTON_PADDING = 15
-BUTTON_WIDTH = love.graphics.getWidth() - BUTTON_MARGIN * 2
+BUTTON_WIDTH = SAFE_WIDTH - BUTTON_MARGIN * 2
 local function create_listbox(self)
-    local winwidth = love.graphics.getWidth()
+    local winwidth = SAFE_WIDTH
+    print(SAFE_WIDTH, love.graphics.getWidth())
     local font = love.graphics.getFont()
     local text = love.graphics.newText(font)
     local draw_evt, input_evt
@@ -167,11 +171,11 @@ local function create_listbox(self)
             }))
             text:add(wrapped_text, math.floor(winwidth / 2 - width / 2), math.floor(y))
             love.graphics.setColor(1, 1, 1, .5)
-            love.graphics.rectangle("fill", BUTTON_MARGIN, y,
+            love.graphics.rectangle("fill", SAFE_X + BUTTON_MARGIN, y,
                 button_width, button_height, 10, 10)
             love.graphics.setColor(.5, .5, .5, .5)
 
-            love.graphics.rectangle("line", BUTTON_MARGIN, y,
+            love.graphics.rectangle("line", SAFE_X + BUTTON_MARGIN, y,
                 button_width, button_height, 10, 10)
             love.graphics.setColor(0, 0, 0, 1)
             love.graphics.draw(text)
