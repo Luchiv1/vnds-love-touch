@@ -1,7 +1,6 @@
 export *
 import dispatch, dispatch_often, on, remove, register from require 'event'
 import create_listbox, onload from require "mouseui"
-
 love.graphics.setDefaultFilter("linear", "linear")
 script = require "script"
 pprint = require "lib/pprint"
@@ -71,6 +70,7 @@ love.load = ->
 	opts = {}
 	media = font\getHeight! * 3
 	for i,novel in ipairs novels
+		continue if string.find(novel, "^%.") ~= nil
 		base_dir = root_path..novel.."/"
 		if lfs.getInfo(base_dir, "file") then continue
 		icons = {"icon-high.png", "icon-high.jpg", "icon.png", "icon.jpg"}
@@ -101,9 +101,12 @@ love.load = ->
 				dispatch "load_slot", base_dir, false
 		})
 	if next(opts) == nil
-		dispatch "text", {text: "No novels found in this directory: "}
-		dispatch "text", {text: root_path}
-		dispatch "text", {text: "Add one and restart the program"}
+		dispatch "text", {text: "No novels!"}
+		dispatch "text", {text: "Add one to Files/VNDS and restart the program."}
+		dispatch "text", {text: "Looking for visual novels to read? Click anywhere on this screen to open VNDB search"}
+		on "input", -> 
+			love.system.openURL("https://vndb.org/v?q=&sb=Search%21&ch=&f=4ovnd&s=26w")
+			return false
 	else create_listbox(choices: opts, :media)
 
 
