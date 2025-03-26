@@ -52,7 +52,7 @@ jobs:
               working-directory: ./love/platform/xcode
               run: |
                   ls
-
+                  xcodebuild -showBuildSettings -project vnds.xcodeproj -scheme love-ios | grep MARKETING_VERSION | tr -d 'MARKETING_VERSION =' > ../../../VNDS-LOVE/app_version.txt
                   xcodebuild -list -project vnds.xcodeproj
 
                   xcodebuild -project vnds.xcodeproj clean archive CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGN_ENTITLEMENTS="" CODE_SIGNING_ALLOWED="NO" -sdk iphoneos -destination 'generic/platform=iOS' -archivePath ./arc -scheme love-ios
@@ -63,7 +63,7 @@ jobs:
 
                   zip -r VNDS.ipa Payload
 
-                  xcodebuild -showBuildSettings -project vnds.xcodeproj -scheme love-ios | grep MARKETING_VERSION | tr -d 'MARKETING_VERSION =' > ~/VNDS-LOVE/app_version.txt
+                  
             - name: Create AltStore/SideStore/ESign repository
               working-directory: ./VNDS-LOVE
               run: >
