@@ -1,4 +1,5 @@
-json = require "lib/json"
+json = require "lib.json"
+mount = require 'mount'
 local *
 media = 0
 on "resize", -> media = font\getHeight! * 3
@@ -15,6 +16,7 @@ on "save_slot", ->
 		return false
 	slot_ui(base_dir, write_slot, write_slot)
 on "load_slot", (base_dir, closable = true) ->
+	mount(base_dir)
 	slot_ui(base_dir,
 		=>
 			export interpreter = script.load(base_dir, lfs.read, @data.save.interpreter)
