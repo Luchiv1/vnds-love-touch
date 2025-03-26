@@ -49,7 +49,7 @@ jobs:
               run: |
                   alfons build
             - name: Build ipa
-              working-directory: ./love2d/platform/xcode
+              working-directory: ./love/platform/xcode
               run: >
                   ls
 
