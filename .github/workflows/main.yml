@@ -17,7 +17,7 @@ jobs:
               run: brew install luarocks zip libzip
             - uses: actions/checkout@v4
               with:
-                  fetch-depth: 0
+                  path: VNDS-LOVE
             - uses: actions/checkout@v4
               with:
                   repository: love2d/love
@@ -34,8 +34,9 @@ jobs:
                   cp -rv iOS/libraries ../love2d/platform/xcode/ios 
                   cp -rv shared ../love2d/platform/xcode
                   cd ..
-                  cp -rv vnds.xcodeproj love2d/platform/xcode/
-                  cp love-ios.plist love2d/platform/xcode/ios
+                  cp -rv VNDS-LOVE/xcode/vnds.xcodeproj love2d/platform/xcode/
+                  cp VNDS-LOVE/xcode/love-ios.plist love2d/platform/xcode/ios
+                  cp VNDS-LOVE/xcode/Images.xcassets love2d/platform/xcode/
             - name: Install VNDS dependencies
               run: |
                   luarocks install moonscript
@@ -43,6 +44,7 @@ jobs:
                   luarocks install alfons
                   luarocks install love-release
             - name: Build VNDS
+              working-directory: ./VNDS-LOVE
               run: |
                   alfons build
             - name: Build ipa
@@ -55,7 +57,7 @@ jobs:
                   mkdir Payload
                   cp -rv arc.xcarchive/Products/Applications/VNDS.app Payload
                   zip -r VNDS.ipa Payload
-            
+
             - name: Archive build artifacts
               uses: actions/upload-artifact@v4
               with:
