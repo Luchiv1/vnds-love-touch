@@ -3,3 +3,5 @@ build
 bin
 # apple moment
 .DS_Store
+app_version.txt
+altStoreManifest.json

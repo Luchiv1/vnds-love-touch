@@ -1,11 +1,12 @@
 name: Build VNDS-LOVE
 on:
     push:
-        branches: ["main"]
+        branches:
+            - main
         paths-ignore:
             - "*.md"
-            - ".github/dependabot.yml"
-    workflow_dispatch:
+            - .github/dependabot.yml
+    workflow_dispatch: null
 jobs:
     build:
         permissions:
@@ -21,7 +22,7 @@ jobs:
             - uses: actions/checkout@v4
               with:
                   repository: love2d/love
-                  path: love2d
+                  path: love
                   ref: main
             - uses: actions/checkout@v4
               with:
@@ -31,12 +32,12 @@ jobs:
             - name: Copy LOVE dependencies
               run: |
                   cd deps
-                  cp -rv iOS/libraries ../love2d/platform/xcode/ios 
-                  cp -rv shared ../love2d/platform/xcode
+                  cp -rv iOS/libraries ../love/platform/xcode/ios 
+                  cp -rv shared ../love/platform/xcode
                   cd ..
-                  cp -rv VNDS-LOVE/xcode/vnds.xcodeproj love2d/platform/xcode/
-                  cp VNDS-LOVE/xcode/love-ios.plist love2d/platform/xcode/ios
-                  cp VNDS-LOVE/xcode/Images.xcassets love2d/platform/xcode/
+                  cp -rv VNDS-LOVE/xcode/vnds.xcodeproj love/platform/xcode/
+                  cp VNDS-LOVE/xcode/love-ios.plist love/platform/xcode/ios
+                  cp VNDS-LOVE/xcode/Images.xcassets love/platform/xcode/
             - name: Install VNDS dependencies
               run: |
                   luarocks install moonscript
@@ -49,17 +50,34 @@ jobs:
                   alfons build
             - name: Build ipa
               working-directory: ./love2d/platform/xcode
-              run: |
+              run: >
                   ls
+
                   xcodebuild -list -project vnds.xcodeproj
-                  xcodebuild -project vnds.xcodeproj clean archive CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGN_ENTITLEMENTS="" \
-                                           CODE_SIGNING_ALLOWED="NO" -sdk iphoneos -destination 'generic/platform=iOS' -archivePath ./arc -scheme love-ios
+
+                  xcodebuild -project vnds.xcodeproj clean archive CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGN_ENTITLEMENTS="" CODE_SIGNING_ALLOWED="NO" -sdk iphoneos -destination 'generic/platform=iOS' -archivePath ./arc -scheme love-ios
                   mkdir Payload
+
                   cp -rv arc.xcarchive/Products/Applications/VNDS.app Payload
+
                   zip -r VNDS.ipa Payload
 
+                  xcodebuild -showBuildSettings -project vnds.xcodeproj -scheme love-ios | grep MARKETING_VERSION | tr -d 'MARKETING_VERSION =' > ~/VNDS-LOVE/app_version.txt
+            - name: Create AltStore/SideStore/ESign repository
+              working-directory: ./VNDS-LOVE
+              run: >
+                  node create_altstore_repo.mjs
+                  export APP_VER=$(cat app_version.txt)
             - name: Archive build artifacts
               uses: actions/upload-artifact@v4
               with:
                   path: |
                       love2d/platform/xcode/VNDS.ipa
+            - name: Draft Release
+              uses: softprops/action-gh-release@v2
+              with:
+                  draft: true
+                  tag_name: "${{ env.APP_VER }}"
+                  files: |
+                      love2d/platform/xcode/VNDS.ipa
+                      VNDS-LOVE/altStoreManifest.json
