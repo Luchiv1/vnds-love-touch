@@ -22,6 +22,4 @@ tasks:
 	build: =>
 		tasks.compile!
 		shfail "love-release -W -M --uti 'me.octonezd.vnds' build vnds/"
-	lovebrew: =>
-		tasks.compile!
-		print(tasks.fetch(switch_url))
+
