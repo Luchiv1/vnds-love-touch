@@ -50,12 +50,13 @@ jobs:
                   alfons build
             - name: Build ipa
               working-directory: ./love/platform/xcode
-              run: >
+              run: |
                   ls
 
                   xcodebuild -list -project vnds.xcodeproj
 
                   xcodebuild -project vnds.xcodeproj clean archive CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGN_ENTITLEMENTS="" CODE_SIGNING_ALLOWED="NO" -sdk iphoneos -destination 'generic/platform=iOS' -archivePath ./arc -scheme love-ios
+
                   mkdir Payload
 
                   cp -rv arc.xcarchive/Products/Applications/VNDS.app Payload
