@@ -1,5 +1,4 @@
 json = require "lib.json"
-mount = require 'mount'
 local *
 media = 0
 on "resize", -> media = font\getHeight! * 3
@@ -16,7 +15,6 @@ on "save_slot", ->
 		return false
 	slot_ui(base_dir, write_slot, write_slot)
 on "load_slot", (base_dir, closable = true, novel_name="") ->
-	mount(base_dir)
 	slot_ui(base_dir,
 		=>
 			export interpreter = script.load(base_dir, lfs.read, @data.save.interpreter, novel_name)
@@ -32,14 +30,13 @@ on "load_slot", (base_dir, closable = true, novel_name="") ->
 	)
 preview_slot = (i, fn, save, info) ->
 	bg_path = save.background.path
-	preview = ->
+	img = nil
 	if save.background and save.background.path
 		img = lg.newImage(save.background.path)
-		s = math.min(media/img\getWidth!, media/img\getHeight!)
-		preview = (x, y) -> lg.draw(img, x, y, 0, s, s)
+		
 	return {
 		text: "Save #{i}\n#{os.date("%x %H:%M")}"
-		media: preview
+		media: img
 		data: {:save, :fn, :i}
 	}
 slot_ui = (base_dir, existing_slot, new_slot, closable = true) ->

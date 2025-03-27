@@ -23,6 +23,7 @@ require "save"
 require "input"
 require "menu"
 require "config"
+mount = require 'mount'
 parse_info = require "parse_info"
 os.setlocale("", "time") --Needed for the correct time
 lfs.setIdentity("VNDS-LOVE")
@@ -77,12 +78,11 @@ love.load = ->
 		if lfs.getInfo(base_dir, "file") then continue
 		icons = {"icon-high.png", "icon-high.jpg", "icon.png", "icon.jpg"}
 		thumbnails = {"thumbnail-high.png", "thumbnail-high.jpg", "thumbnail.png", "thumbnail.jpg"}
-		preview = ->
+		preview = nil
 		for icon in *icons
 			if lfs.getInfo(base_dir..icon)
 				img = lg.newImage(base_dir..icon)
-				s = math.min(media/img\getWidth!, media/img\getHeight!)
-				preview = (x, y) -> lg.draw(img, x, y, 0, s, s)
+				preview = img
 				break
 		path = "~"
 		for thumb in *thumbnails
@@ -94,13 +94,14 @@ love.load = ->
 			if info["title"] ~= nil then
 				novel_name = info["title"]
 		table.insert(opts, {
-			text: novel_name,
+			text: novel_name
 			media: preview
 			onchange: () -> dispatch "bgload", {:path}
 			action: () ->
 				files = lfs.getDirectoryItems(base_dir)
 				dispatch "load_slot", base_dir, false, novel_name
 		})
+		mount(base_dir)
 	if next(opts) == nil
 		dispatch "text", {text: "No novels!"}
 		dispatch "text", {text: "Add one to Files/VNDS and restart the program."}

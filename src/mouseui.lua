@@ -97,12 +97,24 @@ on("click", function(x, y, button, istouch)
     else
     end
 end)
+local function get_media_size(media)
+    local max_media_size = love.graphics.getHeight() / 4
+
+    local media_height = media:getHeight()
+    local media_width = media:getWidth()
+    local media_scale = 1
+    if (media_height > max_media_size) then
+        media_scale = max_media_size / media_height
+        media_height = max_media_size
+        media_width = media_width * media_scale
+    end
+    return media_width, media_height, media_scale
+end
 BUTTON_MARGIN = 5
 BUTTON_PADDING = 15
 BUTTON_WIDTH = SAFE_WIDTH - BUTTON_MARGIN * 2
 local function create_listbox(self)
     local winwidth = SAFE_WIDTH
-    print(SAFE_WIDTH, love.graphics.getWidth())
     local font = love.graphics.getFont()
     local text = love.graphics.newText(font)
     local draw_evt, input_evt
@@ -118,7 +130,6 @@ local function create_listbox(self)
         dispatch("play")
     end
     self.onclose = self.onclose or close
-    self.media = self.media
     dispatch("pause")
     local buttons = {}
     SCROLL_OFFSET = 0
@@ -127,7 +138,7 @@ local function create_listbox(self)
     SCROLL_LOCKED = false
     local height_offset = 0
     for _, v in ipairs(self.choices) do
-        local width, wrapped_text_seq = font:getWrap(v.text, winwidth - BUTTON_PADDING * 2)
+        local _, wrapped_text_seq = font:getWrap(v.text, winwidth - BUTTON_PADDING * 2)
         local wrapped_text = ""
         if (#wrapped_text_seq == 1) then
             wrapped_text = wrapped_text_seq[1]
@@ -137,6 +148,10 @@ local function create_listbox(self)
             end
         end
         local button_height = font:getHeight() * #wrapped_text_seq + BUTTON_MARGIN * 2
+        if (v.media) then
+            local _, media_height, _ = get_media_size(v.media)
+            button_height = button_height + media_height
+        end
         height_offset = height_offset + button_height
     end
     SCROLL_MIN = -(height_offset - love.graphics.getHeight()) - 200
@@ -161,13 +176,20 @@ local function create_listbox(self)
             end
             local button_width = winwidth - BUTTON_MARGIN * 2
             local button_height = font:getHeight() * #wrapped_text_seq + BUTTON_MARGIN * 2
+            local media_width = 0
+            local media_height = 0
+            local media_scale = 1
+            if (v.media) then
+                media_width, media_height, media_scale = get_media_size(v.media)
+            end
+            button_height = button_height + media_height
             local y = last_y + BUTTON_MARGIN
             table.insert(buttons, ({
                 y_start = y,
                 y_end = y + button_height,
                 choice = v
             }))
-            text:add(wrapped_text, math.floor(winwidth / 2 - width / 2), math.floor(y))
+            text:add(wrapped_text, math.floor(winwidth / 2 - width / 2), math.floor(y + media_height))
             love.graphics.setColor(1, 1, 1, .5)
             love.graphics.rectangle("fill", SAFE_X + BUTTON_MARGIN, y,
                 button_width, button_height, 10, 10)
@@ -177,6 +199,11 @@ local function create_listbox(self)
                 button_width, button_height, 10, 10)
             love.graphics.setColor(0, 0, 0, 1)
             love.graphics.draw(text)
+            if (v.media) then
+                love.graphics.setColor(1, 1, 1)
+                love.graphics.draw(v.media, math.floor(winwidth / 2 - media_width / 2), y + 3, 0, media_scale,
+                    media_scale)
+            end
             last_y = y + button_height
         end
     end)

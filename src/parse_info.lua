@@ -5,7 +5,6 @@ local function parse_info(filename)
             data[k] = v
         end
     end
-    pprint(data)
     return data
 end
 return parse_info
