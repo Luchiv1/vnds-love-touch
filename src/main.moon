@@ -23,6 +23,7 @@ require "save"
 require "input"
 require "menu"
 require "config"
+parse_info = require "parse_info"
 os.setlocale("", "time") --Needed for the correct time
 lfs.setIdentity("VNDS-LOVE")
 sx, sy = 0,0
@@ -72,6 +73,7 @@ love.load = ->
 	for i,novel in ipairs novels
 		continue if string.find(novel, "^%.") ~= nil
 		base_dir = root_path..novel.."/"
+		novel_name = novel
 		if lfs.getInfo(base_dir, "file") then continue
 		icons = {"icon-high.png", "icon-high.jpg", "icon.png", "icon.jpg"}
 		thumbnails = {"thumbnail-high.png", "thumbnail-high.jpg", "thumbnail.png", "thumbnail.jpg"}
@@ -87,8 +89,12 @@ love.load = ->
 			if lfs.getInfo(base_dir..thumb)
 				path = base_dir..thumb
 				break
+		if lfs.getInfo(base_dir .. "info.txt") ~= nil
+		    info = parse_info(base_dir.."info.txt")
+			if info["title"] ~= nil then
+				novel_name = info["title"]
 		table.insert(opts, {
-			text: novel,
+			text: novel_name,
 			media: preview
 			onchange: () -> dispatch "bgload", {:path}
 			action: () ->
