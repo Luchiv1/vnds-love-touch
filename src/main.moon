@@ -99,12 +99,7 @@ love.load = ->
 			onchange: () -> dispatch "bgload", {:path}
 			action: () ->
 				files = lfs.getDirectoryItems(base_dir)
-				with wrap _(files)
-					\filter => @match("^.+(%..+)$") == ".zip"
-					\map => @gsub(".zip", "")
-					\reject => _.include(files, @)
-					\each => lfs.mount(base_dir..@..".zip", base_dir)
-				dispatch "load_slot", base_dir, false
+				dispatch "load_slot", base_dir, false, novel_name
 		})
 	if next(opts) == nil
 		dispatch "text", {text: "No novels!"}

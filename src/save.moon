@@ -15,16 +15,16 @@ on "save_slot", ->
 		@media = choice.media
 		return false
 	slot_ui(base_dir, write_slot, write_slot)
-on "load_slot", (base_dir, closable = true) ->
+on "load_slot", (base_dir, closable = true, novel_name="") ->
 	mount(base_dir)
 	slot_ui(base_dir,
 		=>
-			export interpreter = script.load(base_dir, lfs.read, @data.save.interpreter)
+			export interpreter = script.load(base_dir, lfs.read, @data.save.interpreter, novel_name)
 			dispatch "restore", @data.save
 			dispatch "next_ins"
 			return true
 		=>
-			export interpreter = script.load(base_dir, lfs.read)
+			export interpreter = script.load(base_dir, lfs.read, file: "main.scr", novel_name)
 			dispatch "restore", {}
 			dispatch "next_ins"
 			return true

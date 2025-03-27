@@ -1,8 +1,10 @@
 require "util"
 pprint = require "lib.pprint"
+fixes = {}
+fixes["Ever 17"] = require "vn_specific.ever17.names"
 local *
-load = (base_dir, fs, data = file: "main.scr") ->
-	s = {:base_dir, :fs, locals: {}, globals: {}}
+load = (base_dir, fs, data = file: "main.scr", novel_name="") ->
+	s = {:base_dir, :fs, locals: {}, globals: {}, :novel_name}
 	s = _.extend(s, read_file(s, data.file))
 	_.extend(s, data)
 save = (s) -> {file: s.file, locals: s.locals, globals: s.globals, n: s.n-1}
@@ -14,7 +16,6 @@ find_script = require "find_script"
 escape_pattern = (text) ->
 	return text\gsub("([^%w])", "%%%1")
 read_file = (s, script_file) ->
-	print(script_file)
 	file = find_script(s, script_file)
 	scriptpath = "#{s.base_dir}script/#{file}"
 	data = s.fs(scriptpath)
@@ -26,6 +27,8 @@ read_file = (s, script_file) ->
 	labels = {ins.label, i for i, ins in ipairs ins when ins.type == "label" }
 	{:file, :ins, :labels, n: 1}
 interpolate = (s, text) ->
+	if fixes[s.novel_name] ~= nil then
+		text = fixes[s.novel_name].textPrintReplace(text)
 	for var in text\gmatch("{$([^}]*)}")
 		text = text\gsub("{$"..escape_pattern(var).."}", tostring(mem(s, var)[var]))	
 	for var in text\gmatch("$(%S*)")
