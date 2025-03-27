@@ -63,7 +63,6 @@ jobs:
 
                   zip -r VNDS.ipa Payload
 
-                  
             - name: Create AltStore/SideStore/ESign repository
               working-directory: ./VNDS-LOVE
               run: |
@@ -73,7 +72,8 @@ jobs:
               uses: actions/upload-artifact@v4
               with:
                   path: |
-                      love2d/platform/xcode/VNDS.ipa
+                      VNDS-LOVE/altStoreManifest.json
+                      love/platform/xcode/VNDS.ipa
             - name: Draft Release
               uses: softprops/action-gh-release@v2
               with:
