@@ -1,4 +1,4 @@
-<img src="icons/icon.jpg?raw=true" width="128" height=128>
+<img src="icons/icon.png?raw=true" width="128" height=128>
 
 # VNDS-LOVE-TOUCH
 
