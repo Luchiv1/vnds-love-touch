@@ -110,7 +110,7 @@ on "draw_text", ->
 		lg.setFont(love.text_font)
 		w, h = lg.getWidth! - 2*pad, pad + (love.text_font\getHeight! + pad) * calculate_lines()
 		x, y = pad, getHeight! - h - pad
-		lg.setColor(.18,.204,.251, .8)
+		lg.setColor(.18,.204,.251, .0)
 		lg.rectangle("fill", x, y, w, h)
 		lg.setColor(1, 1, 1)
 		y_pos = y + pad
